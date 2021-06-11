@@ -17,6 +17,8 @@ func main() {
 		err = pkgman.Remove(args[2:]...)
 	case "-u":
 		pkgman.Update()
+	case "-l":
+		pkgman.List()
 	default:
 		os.Exit(1)
 	}

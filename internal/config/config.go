@@ -109,3 +109,19 @@ func RemovePackage(pkg ...string) {
 		os.Exit(1)
 	}
 }
+
+func WalkThroughKVs(fn func(k, v string) error) {
+	err := db.View(func(tx *bolt.Tx) error {
+		// Assume bucket exists and has keys
+		b := tx.Bucket([]byte(pkgInstalled))
+
+		err := b.ForEach(func(k, v []byte) error {
+			return fn(string(k), string(v))
+		})
+		return err
+	})
+	if err != nil {
+		println(err.Error())
+		os.Exit(1)
+	}
+}
