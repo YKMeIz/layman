@@ -1,6 +1,7 @@
 package pkgman
 
 import (
+	"fmt"
 	"github.com/YKMeIz/layman/internal/cmd"
 	"github.com/YKMeIz/layman/internal/config"
 	"github.com/go-git/go-git/v5"
@@ -15,6 +16,18 @@ func Install(pkgs ...string) error {
 			println(err.Error())
 			os.Exit(1)
 		}
+	}
+
+	for _, v := range pkgs {
+		if _, err := getLatestVersion(v); err != nil {
+			println(err.Error())
+			os.Exit(1)
+		}
+		fmt.Println(v)
+	}
+
+	if !askForConfirmation("Would you like to install these packages?") {
+		os.Exit(0)
 	}
 
 	for _, v := range pkgs {
@@ -34,6 +47,11 @@ func Install(pkgs ...string) error {
 			return err
 		}
 
+		makepkgCmd := "makepkg -sicr --noconfirm"
+		if verboseMode {
+			makepkgCmd += " -L --printsrcinfo"
+		}
+
 		if err := cmd.ExecCmd(dir, "makepkg -sicr --noconfirm"); err != nil {
 			return err
 		}
@@ -51,6 +69,18 @@ func Install(pkgs ...string) error {
 }
 
 func Remove(pkgs ...string) error {
+	for _, v := range pkgs {
+		if !config.IsExist(v) {
+			println("Error: package", v, "not found in world")
+			os.Exit(-1)
+		}
+		fmt.Println(v)
+	}
+
+	if !askForConfirmation("Would you like to remove these packages?") {
+		os.Exit(0)
+	}
+
 	for _, v := range pkgs {
 		if err := cmd.ExecCmd("", "sudo pacman -Rs --noconfirm "+v); err != nil {
 			return err

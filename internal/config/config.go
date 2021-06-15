@@ -28,7 +28,7 @@ func init() {
 	var err error
 	db, err = bolt.Open(getConfigFilePath(), 0600, nil)
 	if err != nil {
-		println(err)
+		println(err.Error())
 		os.Exit(1)
 	}
 	//defer db.Close()
@@ -37,7 +37,7 @@ func init() {
 		_, e := tx.CreateBucketIfNotExists([]byte(pkgInstalled))
 		return e
 	}); err != nil {
-		println(err)
+		println(err.Error())
 		os.Exit(1)
 	}
 
@@ -108,6 +108,44 @@ func RemovePackage(pkg ...string) {
 		println(err.Error())
 		os.Exit(1)
 	}
+}
+
+func IsExist(pkg string) bool {
+	var existed bool
+
+	err := db.View(func(tx *bolt.Tx) error {
+		// Assume bucket exists and has keys
+		if tx.Bucket([]byte(pkgInstalled)).Get([]byte(pkg)) != nil {
+			existed = true
+		}
+
+		return nil
+	})
+	if err != nil {
+		println(err.Error())
+		os.Exit(1)
+	}
+
+	return existed
+}
+
+func GetVersion(pkg string) string {
+	var ver string
+
+	err := db.View(func(tx *bolt.Tx) error {
+		// Assume bucket exists and has keys
+		if v := tx.Bucket([]byte(pkgInstalled)).Get([]byte(pkg)); v != nil {
+			ver = string(v)
+		}
+
+		return nil
+	})
+	if err != nil {
+		println(err.Error())
+		os.Exit(1)
+	}
+
+	return ver
 }
 
 func WalkThroughKVs(fn func(k, v string) error) {

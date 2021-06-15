@@ -2,27 +2,95 @@ package main
 
 import (
 	"github.com/YKMeIz/layman/internal/pkgman"
-	"log"
+	"github.com/spf13/cobra"
 	"os"
 )
 
-func main() {
+type flagSet struct {
+	ask, remove, update, list, verbose bool
+}
 
-	args := os.Args
-	var err error
-	switch args[1] {
-	case "-a":
-		err = pkgman.Install(args[2:]...)
-	case "-c":
-		err = pkgman.Remove(args[2:]...)
-	case "-u":
-		pkgman.Update()
-	case "-l":
-		pkgman.List()
-	default:
+func main() {
+	var (
+		fs flagSet
+
+		cmd = &cobra.Command{
+			Use:   "layman",
+			Short: "Layman is a package manager for Arch User Repository (AUR).",
+			Run:   fs.execute,
+		}
+	)
+
+	cmd.PersistentFlags().BoolVarP(&fs.ask, "ask", "a", false, "before performing the action, display what will take place")
+	cmd.PersistentFlags().BoolVarP(&fs.remove, "clean", "c", false, "cleans the system by removing all matching packages")
+	cmd.PersistentFlags().BoolVarP(&fs.update, "update", "u", false, "updates packages to the latest version available")
+	cmd.PersistentFlags().BoolVarP(&fs.list, "list", "l", false, "displays a list of installed packages")
+	cmd.PersistentFlags().BoolVarP(&fs.verbose, "verbose", "v", false, "tell layman to run in verbose mode")
+
+	if err := cmd.Execute(); err != nil {
+		println(err.Error())
 		os.Exit(1)
 	}
-	if err != nil {
-		log.Println(err)
+}
+
+func (fs *flagSet) execute(cmd *cobra.Command, args []string) {
+	if fs.ask {
+		pkgman.SetAskMode()
+	}
+	if fs.verbose {
+		pkgman.SetVerboseMode()
+	}
+
+	if fs.remove {
+		if fs.update {
+			println("Error: cannot remove packages with update together")
+			os.Exit(1)
+		}
+		if fs.list {
+			println("Error: cannot remove packages with list together")
+			os.Exit(1)
+		}
+
+		if err := pkgman.Remove(args...); err != nil {
+			println(err.Error())
+			os.Exit(1)
+		}
+
+		return
+	}
+
+	if fs.update {
+		if fs.remove {
+			println("Error: cannot update packages with clean together")
+			os.Exit(1)
+		}
+		if fs.list {
+			println("Error: cannot update packages with list together")
+			os.Exit(1)
+		}
+
+		pkgman.Update(args...)
+		return
+	}
+
+	if fs.list {
+		if fs.update {
+			println("Error: cannot list packages with update together")
+			os.Exit(1)
+		}
+		if fs.remove {
+			println("Error: cannot list packages with clean together")
+			os.Exit(1)
+		}
+
+		pkgman.List()
+		return
+	}
+
+	if len(args) > 0 {
+		if err := pkgman.Install(args...); err != nil {
+			println(err.Error())
+			os.Exit(1)
+		}
 	}
 }
