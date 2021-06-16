@@ -10,6 +10,10 @@ import (
 )
 
 func Install(pkgs ...string) error {
+	if len(pkgs) == 0 {
+		return nil
+	}
+
 	workDir := os.TempDir() + "/aur/work/"
 	if _, err := os.Stat(workDir); os.IsNotExist(err) {
 		if err = os.MkdirAll(workDir, 0755); err != nil {

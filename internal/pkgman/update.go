@@ -7,6 +7,11 @@ import (
 )
 
 func Update(pkgs ...string) {
+	if len(pkgs) == 0 {
+		updateAll()
+		return
+	}
+
 	var outDatedPkgs []string
 
 	for _, v := range pkgs {
@@ -14,6 +19,10 @@ func Update(pkgs ...string) {
 		if err != nil {
 			println(err.Error())
 			os.Exit(1)
+		}
+
+		if verboseMode {
+			fmt.Println("check latest version for package", v)
 		}
 
 		ver := config.GetVersion(v)
