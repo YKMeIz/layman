@@ -9,7 +9,7 @@ import (
 )
 
 var (
-	askMode, verboseMode bool
+	askMode, verboseMode, skippgpcheck bool
 )
 
 func SetAskMode() {
@@ -18,6 +18,10 @@ func SetAskMode() {
 
 func SetVerboseMode() {
 	verboseMode = true
+}
+
+func SetSkipPGPCheck() {
+	skippgpcheck = true
 }
 
 func askForConfirmation(s string) bool {
@@ -37,9 +41,9 @@ func askForConfirmation(s string) bool {
 
 		response = strings.ToLower(strings.TrimSpace(response))
 
-		if response == "y" || response == "yes" {
+		if response == "y" || response == "yes" || response == "Y" || response == "Yes" {
 			return true
-		} else if response == "n" || response == "no" {
+		} else if response == "n" || response == "no" || response == "N" || response == "No" {
 			return false
 		}
 	}

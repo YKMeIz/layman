@@ -9,6 +9,11 @@ import (
 	"os"
 )
 
+func init() {
+	// cleanup working directory
+	os.RemoveAll(os.TempDir() + "/aur/work/")
+}
+
 func Install(pkgs ...string) error {
 	if len(pkgs) == 0 {
 		return nil
@@ -55,8 +60,11 @@ func Install(pkgs ...string) error {
 		if verboseMode {
 			makepkgCmd += " -L --printsrcinfo"
 		}
+		if skippgpcheck {
+			makepkgCmd += " --skippgpcheck"
+		}
 
-		if err := cmd.ExecCmd(dir, "makepkg -sicr --noconfirm"); err != nil {
+		if err := cmd.ExecCmd(dir, makepkgCmd); err != nil {
 			return err
 		}
 

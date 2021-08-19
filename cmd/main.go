@@ -7,7 +7,7 @@ import (
 )
 
 type flagSet struct {
-	ask, remove, update, list, verbose bool
+	ask, remove, update, list, verbose, skippgpcheck bool
 }
 
 func main() {
@@ -27,6 +27,7 @@ func main() {
 	cmd.PersistentFlags().BoolVarP(&fs.update, "update", "u", false, "updates packages to the latest version available")
 	cmd.PersistentFlags().BoolVarP(&fs.list, "list", "l", false, "displays a list of installed packages")
 	cmd.PersistentFlags().BoolVarP(&fs.verbose, "verbose", "v", false, "tell layman to run in verbose mode")
+	cmd.PersistentFlags().BoolVar(&fs.skippgpcheck, "skippgpcheck", false, "do not verify PGP signatures of source files")
 
 	if err := cmd.Execute(); err != nil {
 		println(err.Error())
@@ -40,6 +41,10 @@ func (fs *flagSet) execute(cmd *cobra.Command, args []string) {
 	}
 	if fs.verbose {
 		pkgman.SetVerboseMode()
+	}
+
+	if fs.skippgpcheck {
+		pkgman.SetSkipPGPCheck()
 	}
 
 	if fs.remove {
