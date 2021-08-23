@@ -9,7 +9,7 @@ import (
 )
 
 var (
-	askMode, verboseMode, skippgpcheck bool
+	askMode, verboseMode, skippgpcheck, force bool
 )
 
 func SetAskMode() {
@@ -22,6 +22,10 @@ func SetVerboseMode() {
 
 func SetSkipPGPCheck() {
 	skippgpcheck = true
+}
+
+func SetForce() {
+	force = true
 }
 
 func askForConfirmation(s string) bool {

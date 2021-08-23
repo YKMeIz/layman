@@ -64,7 +64,9 @@ func Install(pkgs ...string) error {
 		}
 
 		if err := cmd.ExecCmd(dir, makepkgCmd); err != nil {
-			return err
+			if !force {
+				return err
+			}
 		}
 
 		config.AddPackage(config.PkgInfo{
@@ -80,12 +82,14 @@ func Install(pkgs ...string) error {
 }
 
 func Remove(pkgs ...string) error {
-	for _, v := range pkgs {
-		if !config.IsExist(v) {
-			println(color.Red("Error: package", v, "not found in world"))
-			os.Exit(-1)
+	if !force {
+		for _, v := range pkgs {
+			if !config.IsExist(v) {
+				println(color.Red("Error: package", v, "not found in world"))
+				os.Exit(-1)
+			}
+			fmt.Println(v)
 		}
-		fmt.Println(v)
 	}
 
 	if !askForConfirmation("Would you like to remove these packages?") {
@@ -93,11 +97,16 @@ func Remove(pkgs ...string) error {
 	}
 
 	for _, v := range pkgs {
+		if force {
+			config.RemovePackage(v)
+		}
 		if err := cmd.ExecCmd("", "sudo pacman -Rs --noconfirm "+v); err != nil {
 			return err
 		}
 
-		config.RemovePackage(v)
+		if !force {
+			config.RemovePackage(v)
+		}
 	}
 	return nil
 }

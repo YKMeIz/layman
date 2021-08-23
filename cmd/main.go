@@ -8,7 +8,7 @@ import (
 )
 
 type flagSet struct {
-	ask, remove, update, list, verbose, skippgpcheck bool
+	ask, remove, update, list, verbose, skippgpcheck, force bool
 }
 
 func main() {
@@ -24,11 +24,12 @@ func main() {
 	)
 
 	cmd.PersistentFlags().BoolVarP(&fs.ask, "ask", "a", false, "before performing the action, display what will take place")
-	cmd.PersistentFlags().BoolVarP(&fs.remove, "clean", "c", false, "cleans the system by removing all matching packages")
-	cmd.PersistentFlags().BoolVarP(&fs.update, "update", "u", false, "updates packages to the latest version available")
-	cmd.PersistentFlags().BoolVarP(&fs.list, "list", "l", false, "displays a list of installed packages")
+	cmd.PersistentFlags().BoolVarP(&fs.remove, "clean", "c", false, "clean the system by removing all matching packages")
+	cmd.PersistentFlags().BoolVarP(&fs.update, "update", "u", false, "update packages to the latest version available")
+	cmd.PersistentFlags().BoolVarP(&fs.list, "list", "l", false, "display a list of installed packages")
 	cmd.PersistentFlags().BoolVarP(&fs.verbose, "verbose", "v", false, "tell layman to run in verbose mode")
 	cmd.PersistentFlags().BoolVar(&fs.skippgpcheck, "skippgpcheck", false, "do not verify PGP signatures of source files")
+	cmd.PersistentFlags().BoolVar(&fs.force, "force", false, "ignore errors returned by pacman")
 
 	if err := cmd.Execute(); err != nil {
 		println(color.Red(err.Error()))
@@ -46,6 +47,10 @@ func (fs *flagSet) execute(cmd *cobra.Command, args []string) {
 
 	if fs.skippgpcheck {
 		pkgman.SetSkipPGPCheck()
+	}
+
+	if fs.force {
+		pkgman.SetForce()
 	}
 
 	if fs.remove {
