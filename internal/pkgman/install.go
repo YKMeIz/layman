@@ -3,6 +3,7 @@ package pkgman
 import (
 	"fmt"
 	"github.com/YKMeIz/layman/internal/cmd"
+	"github.com/YKMeIz/layman/internal/color"
 	"github.com/YKMeIz/layman/internal/config"
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing"
@@ -22,15 +23,13 @@ func Install(pkgs ...string) error {
 	workDir := os.TempDir() + "/aur/work/"
 	if _, err := os.Stat(workDir); os.IsNotExist(err) {
 		if err = os.MkdirAll(workDir, 0755); err != nil {
-			println(err.Error())
-			os.Exit(1)
+			return err
 		}
 	}
 
 	for _, v := range pkgs {
 		if _, err := getLatestVersion(v); err != nil {
-			println(err.Error())
-			os.Exit(1)
+			return err
 		}
 		fmt.Println(v)
 	}
@@ -83,7 +82,7 @@ func Install(pkgs ...string) error {
 func Remove(pkgs ...string) error {
 	for _, v := range pkgs {
 		if !config.IsExist(v) {
-			println("Error: package", v, "not found in world")
+			println(color.Red("Error: package", v, "not found in world"))
 			os.Exit(-1)
 		}
 		fmt.Println(v)

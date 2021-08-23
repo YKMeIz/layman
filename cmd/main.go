@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/YKMeIz/layman/internal/color"
 	"github.com/YKMeIz/layman/internal/pkgman"
 	"github.com/spf13/cobra"
 	"os"
@@ -30,7 +31,7 @@ func main() {
 	cmd.PersistentFlags().BoolVar(&fs.skippgpcheck, "skippgpcheck", false, "do not verify PGP signatures of source files")
 
 	if err := cmd.Execute(); err != nil {
-		println(err.Error())
+		println(color.Red(err.Error()))
 		os.Exit(1)
 	}
 }
@@ -49,11 +50,11 @@ func (fs *flagSet) execute(cmd *cobra.Command, args []string) {
 
 	if fs.remove {
 		if fs.update {
-			println("Error: cannot remove packages with update together")
+			println(color.Red("Error: cannot remove packages with update together"))
 			os.Exit(1)
 		}
 		if fs.list {
-			println("Error: cannot remove packages with list together")
+			println(color.Red("Error: cannot remove packages with list together"))
 			os.Exit(1)
 		}
 
@@ -67,11 +68,11 @@ func (fs *flagSet) execute(cmd *cobra.Command, args []string) {
 
 	if fs.update {
 		if fs.remove {
-			println("Error: cannot update packages with clean together")
+			println(color.Red("Error: cannot update packages with clean together"))
 			os.Exit(1)
 		}
 		if fs.list {
-			println("Error: cannot update packages with list together")
+			println(color.Red("Error: cannot update packages with list together"))
 			os.Exit(1)
 		}
 
@@ -81,11 +82,11 @@ func (fs *flagSet) execute(cmd *cobra.Command, args []string) {
 
 	if fs.list {
 		if fs.update {
-			println("Error: cannot list packages with update together")
+			println(color.Red("Error: cannot list packages with update together"))
 			os.Exit(1)
 		}
 		if fs.remove {
-			println("Error: cannot list packages with clean together")
+			println(color.Red("Error: cannot list packages with clean together"))
 			os.Exit(1)
 		}
 

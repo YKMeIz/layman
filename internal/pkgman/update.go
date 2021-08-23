@@ -2,6 +2,7 @@ package pkgman
 
 import (
 	"fmt"
+	"github.com/YKMeIz/layman/internal/color"
 	"github.com/YKMeIz/layman/internal/config"
 	"os"
 )
@@ -21,16 +22,12 @@ func Update(pkgs ...string) {
 			os.Exit(1)
 		}
 
-		if verboseMode {
-			fmt.Println("check latest version for package", v)
-		}
-
 		ver := config.GetVersion(v)
 
 		if newVersion != ver {
 			outDatedPkgs = append(outDatedPkgs, v)
 			if verboseMode {
-				fmt.Println("find latest version for package "+v+":", ver, "->", newVersion)
+				fmt.Println("find latest version for package "+color.Bold(v)+":", color.Blue(ver), "->", color.Yellow(newVersion))
 			}
 		}
 
@@ -49,10 +46,6 @@ func updateAll() {
 	var outDatedPkgs []string
 
 	config.UpdatePackage(func(name, version string) string {
-		if verboseMode {
-			fmt.Println("check latest version for package", name)
-		}
-
 		newVersion, err := getLatestVersion(name)
 		if err != nil {
 			println(err.Error())
@@ -62,7 +55,7 @@ func updateAll() {
 		if newVersion != version {
 			outDatedPkgs = append(outDatedPkgs, name)
 			if verboseMode {
-				fmt.Println("find latest version for package "+name+":", version, "->", newVersion)
+				fmt.Println("find latest version for package "+color.Bold(name)+":", color.Blue(version), "->", color.Yellow(newVersion))
 			}
 		}
 

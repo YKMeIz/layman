@@ -3,7 +3,7 @@ package pkgman
 import (
 	"bufio"
 	"fmt"
-	"log"
+	"github.com/YKMeIz/layman/internal/color"
 	"os"
 	"strings"
 )
@@ -32,19 +32,23 @@ func askForConfirmation(s string) bool {
 	reader := bufio.NewReader(os.Stdin)
 
 	for {
-		fmt.Printf("%s [Yes/No]: ", s)
+		fmt.Printf("%s [%s/%s]: ", color.Bold(s), color.Green("Yes"), color.Red("No"))
 
 		response, err := reader.ReadString('\n')
 		if err != nil {
-			log.Fatal(err)
+			println(color.Red(err.Error()))
+			os.Exit(1)
 		}
 
 		response = strings.ToLower(strings.TrimSpace(response))
 
-		if response == "y" || response == "yes" || response == "Y" || response == "Yes" {
+		switch response {
+		case "y", "yes", "Y", "Yes":
 			return true
-		} else if response == "n" || response == "no" || response == "N" || response == "No" {
+		case "n", "no", "N", "No":
 			return false
+		default:
+			continue
 		}
 	}
 }
