@@ -57,7 +57,8 @@ func Install(pkgs ...string) error {
 
 		makepkgCmd := "makepkg -sicr --noconfirm"
 		if verboseMode {
-			makepkgCmd += " -L --printsrcinfo"
+			// --printsrcinfo will print info only, not make package
+			makepkgCmd += " -L"
 		}
 		if skippgpcheck {
 			makepkgCmd += " --skippgpcheck"
