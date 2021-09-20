@@ -8,28 +8,13 @@ import (
 	"strings"
 )
 
-var (
-	askMode, verboseMode, skippgpcheck, force bool
-)
-
-func SetAskMode() {
-	askMode = true
+type LaymanConf struct {
+	Ask, Verbose, SkipPGPCheck, Force bool
+	Installed                         map[string]string
 }
 
-func SetVerboseMode() {
-	verboseMode = true
-}
-
-func SetSkipPGPCheck() {
-	skippgpcheck = true
-}
-
-func SetForce() {
-	force = true
-}
-
-func askForConfirmation(s string) bool {
-	if !askMode {
+func (lc *LaymanConf) askForConfirmation(s string) bool {
+	if !lc.Ask {
 		return true
 	}
 
@@ -54,5 +39,11 @@ func askForConfirmation(s string) bool {
 		default:
 			continue
 		}
+	}
+}
+
+func New() *LaymanConf {
+	return &LaymanConf{
+		Installed: retrievePkgList(),
 	}
 }

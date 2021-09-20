@@ -8,7 +8,8 @@ import (
 )
 
 type flagSet struct {
-	ask, remove, update, list, verbose, skippgpcheck, force bool
+	remove, update, list bool
+	lc                   *pkgman.LaymanConf
 }
 
 func main() {
@@ -23,13 +24,15 @@ func main() {
 		}
 	)
 
-	cmd.PersistentFlags().BoolVarP(&fs.ask, "ask", "a", false, "before performing the action, display what will take place")
+	fs.lc = pkgman.New()
+
+	cmd.PersistentFlags().BoolVarP(&fs.lc.Ask, "ask", "a", false, "before performing the action, display what will take place")
 	cmd.PersistentFlags().BoolVarP(&fs.remove, "clean", "c", false, "clean the system by removing all matching packages")
 	cmd.PersistentFlags().BoolVarP(&fs.update, "update", "u", false, "update packages to the latest version available")
 	cmd.PersistentFlags().BoolVarP(&fs.list, "list", "l", false, "display a list of installed packages")
-	cmd.PersistentFlags().BoolVarP(&fs.verbose, "verbose", "v", false, "tell layman to run in verbose mode")
-	cmd.PersistentFlags().BoolVar(&fs.skippgpcheck, "skippgpcheck", false, "do not verify PGP signatures of source files")
-	cmd.PersistentFlags().BoolVar(&fs.force, "force", false, "ignore errors returned by pacman")
+	cmd.PersistentFlags().BoolVarP(&fs.lc.Verbose, "verbose", "v", false, "tell layman to run in verbose mode")
+	cmd.PersistentFlags().BoolVar(&fs.lc.SkipPGPCheck, "skippgpcheck", false, "do not verify PGP signatures of source files")
+	cmd.PersistentFlags().BoolVar(&fs.lc.Force, "force", false, "ignore errors returned by pacman")
 
 	if err := cmd.Execute(); err != nil {
 		println(color.Red(err.Error()))
@@ -38,20 +41,6 @@ func main() {
 }
 
 func (fs *flagSet) execute(cmd *cobra.Command, args []string) {
-	if fs.ask {
-		pkgman.SetAskMode()
-	}
-	if fs.verbose {
-		pkgman.SetVerboseMode()
-	}
-
-	if fs.skippgpcheck {
-		pkgman.SetSkipPGPCheck()
-	}
-
-	if fs.force {
-		pkgman.SetForce()
-	}
 
 	if fs.remove {
 		if fs.update {
@@ -63,7 +52,7 @@ func (fs *flagSet) execute(cmd *cobra.Command, args []string) {
 			os.Exit(1)
 		}
 
-		if err := pkgman.Remove(args...); err != nil {
+		if err := fs.lc.Remove(args...); err != nil {
 			println(err.Error())
 			os.Exit(1)
 		}
@@ -81,7 +70,7 @@ func (fs *flagSet) execute(cmd *cobra.Command, args []string) {
 			os.Exit(1)
 		}
 
-		pkgman.Update(args...)
+		fs.lc.Update(args...)
 		return
 	}
 
@@ -95,12 +84,12 @@ func (fs *flagSet) execute(cmd *cobra.Command, args []string) {
 			os.Exit(1)
 		}
 
-		pkgman.List()
+		fs.lc.List()
 		return
 	}
 
 	if len(args) > 0 {
-		if err := pkgman.Install(args...); err != nil {
+		if err := fs.lc.Install(args...); err != nil {
 			println(err.Error())
 			os.Exit(1)
 		}
