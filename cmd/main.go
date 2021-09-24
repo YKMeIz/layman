@@ -19,7 +19,7 @@ func main() {
 		cmd = &cobra.Command{
 			Use:     "layman",
 			Short:   "Layman is a package manager for Arch User Repository (AUR).",
-			Version: "0.0.1",
+			Version: "v1.0-beta.1",
 			Run:     fs.execute,
 		}
 	)
