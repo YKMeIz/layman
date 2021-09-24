@@ -8,8 +8,8 @@ import (
 )
 
 type flagSet struct {
-	remove, update, list bool
-	lc                   *pkgman.LaymanConf
+	remove, update, list, search bool
+	lc                           *pkgman.LaymanConf
 }
 
 func main() {
@@ -30,6 +30,7 @@ func main() {
 	cmd.PersistentFlags().BoolVarP(&fs.remove, "clean", "c", false, "clean the system by removing all matching packages")
 	cmd.PersistentFlags().BoolVarP(&fs.update, "update", "u", false, "update packages to the latest version available")
 	cmd.PersistentFlags().BoolVarP(&fs.list, "list", "l", false, "display a list of installed packages")
+	cmd.PersistentFlags().BoolVarP(&fs.search, "search", "S", false, "search packages with given names")
 	cmd.PersistentFlags().BoolVarP(&fs.lc.Verbose, "verbose", "v", false, "tell layman to run in verbose mode")
 	cmd.PersistentFlags().BoolVar(&fs.lc.SkipPGPCheck, "skippgpcheck", false, "do not verify PGP signatures of source files")
 	cmd.PersistentFlags().BoolVar(&fs.lc.Force, "force", false, "ignore errors returned by pacman")
@@ -41,6 +42,14 @@ func main() {
 }
 
 func (fs *flagSet) execute(cmd *cobra.Command, args []string) {
+	if fs.search {
+		if fs.update == true || fs.list == true || fs.remove == true {
+			println(color.Red("Error: cannot search with any other operation"))
+			os.Exit(1)
+		}
+		fs.lc.Search(args...)
+		return
+	}
 
 	if fs.remove {
 		if fs.update {
