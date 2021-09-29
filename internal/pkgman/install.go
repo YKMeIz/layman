@@ -28,12 +28,12 @@ func (lc *LaymanConf) Install(pkgs ...string) error {
 
 	pkgsInfo := aurrpc.Info(pkgs...)
 
-	fmt.Println("Following packages are going to be installed:")
+	fmt.Println("\nFollowing packages are going to be installed:")
 	for _, v := range pkgsInfo.Results {
-		fmt.Println(v.Name, v.Version)
+		fmt.Println(" ", v.Name, v.Version)
 	}
 
-	if !lc.askForConfirmation("Would you like to install these packages?") {
+	if !lc.askForConfirmation("\nWould you like to install these packages?") {
 		os.Exit(0)
 	}
 
@@ -73,17 +73,20 @@ func (lc *LaymanConf) Install(pkgs ...string) error {
 }
 
 func (lc *LaymanConf) Remove(pkgs ...string) error {
+	fmt.Println("\nFollowing packages are going to be removed:")
+
 	if !lc.Force {
 		for _, v := range pkgs {
-			if _, ok := lc.Installed[v]; !ok {
-				println(color.Red("Error: package", v, "not found in world"))
-				os.Exit(-1)
+			if info, ok := lc.Installed[v]; ok {
+				fmt.Println(" ", v, info)
+				continue
 			}
-			fmt.Println(v)
+			println(color.Red("Error: package", v, "not found in world"))
+			os.Exit(-1)
 		}
 	}
 
-	if !lc.askForConfirmation("Would you like to remove these packages?") {
+	if !lc.askForConfirmation("\nWould you like to remove these packages?") {
 		os.Exit(0)
 	}
 
