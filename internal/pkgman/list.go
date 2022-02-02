@@ -21,7 +21,8 @@ func retrievePkgList() map[string]string {
 
 	b, err := cmd.ExecCmdOutput("", listAURPkgCmd)
 	if err != nil {
-		panic(err)
+		// error is returned if there is no aur package installed
+		return res
 	}
 
 	for _, v := range strings.Split(string(b), "\n") {
