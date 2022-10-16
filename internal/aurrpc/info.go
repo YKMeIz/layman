@@ -18,7 +18,7 @@ func Info(pkgs ...string) InfoRPC {
 
 	url := "https://aur.archlinux.org/rpc/?v=5&type=info"
 	for _, v := range pkgs {
-		url += "&arg[]=" + v
+		url += "&arg[]=" + urlNormalization(v)[0]
 	}
 
 	resp, err := http.Get(url)
@@ -38,7 +38,7 @@ func Info(pkgs ...string) InfoRPC {
 
 	for _, v := range pkgs {
 		if !search(v, res) {
-			fmt.Println(color.Red("cannot find package", v))
+			fmt.Println(color.Red("cannot find package ", v))
 			notComplete = true
 		}
 	}

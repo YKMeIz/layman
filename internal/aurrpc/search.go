@@ -10,6 +10,8 @@ import (
 func Search(pkg string) SearchRPC {
 	var res SearchRPC
 
+	pkg = urlNormalization(pkg)[0]
+
 	url := "https://aur.archlinux.org/rpc/?v=5&type=search&arg=" + pkg
 
 	resp, err := http.Get(url)
